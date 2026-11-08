@@ -16,6 +16,12 @@ const BYOK_KEY_BRIDGES = [
   { base: "corti", get: "getCortiKey", save: "saveCortiKey" },
   { base: "deepgram", get: "getDeepgramKey", save: "saveDeepgramKey" },
   { base: "assemblyai", get: "getAssemblyAIKey", save: "saveAssemblyAIKey" },
+  { base: "microsoft", get: "getMicrosoftSpeechKey", save: "saveMicrosoftSpeechKey" },
+  {
+    base: "microsoft-endpoint",
+    get: "getMicrosoftSpeechEndpoint",
+    save: "saveMicrosoftSpeechEndpoint",
+  },
   {
     base: "note-formatting-custom",
     get: "getNoteFormattingCustomKey",
@@ -667,6 +673,7 @@ contextBridge.exposeInMainWorld("electronAPI", {
   proxyXaiTranscription: (data) => ipcRenderer.invoke("proxy-xai-transcription", data),
   proxyMistralTranscription: (data) => ipcRenderer.invoke("proxy-mistral-transcription", data),
   proxyGeminiTranscription: (data) => ipcRenderer.invoke("proxy-gemini-transcription", data),
+  proxyMicrosoftTranscription: (data) => ipcRenderer.invoke("proxy-microsoft-transcription", data),
 
   // Corti API
   getCortiClientId: () => ipcRenderer.invoke("get-corti-client-id"),

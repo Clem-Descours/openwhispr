@@ -965,6 +965,10 @@
     "tinfoil": {
       "transportNote": "Tinfoil 串流轉錄使用 Voxtral Mini 4B，批次轉錄使用 Voxtral Small 24B。",
       "docsLink": "查看文件"
+    },
+    "microsoft": {
+      "endpoint": "Endpoint or region",
+      "endpointHint": "Paste the Endpoint from your Azure Speech or Foundry resource (Keys and Endpoint), or a region that serves MAI-Transcribe such as northeurope or eastus. Audio is re-encoded to WAV before upload."
     }
   },
   "hooks": {
@@ -2993,7 +2997,9 @@
         "assemblyai_universal_3_5_pro": "最高精度即時轉錄，支援 18 種語言",
         "assemblyai_universal_3_6_pro": "最高精度即時轉錄，支援 32 種語言",
         "mistral_voxtral_mini_transcribe_3_0": "支援 50 多種語言的快速轉錄（預覽版）",
-        "mistral_voxtral_small_transcribe_3_0": "最準確的 Voxtral，支援 50 多種語言（預覽版）"
+        "mistral_voxtral_small_transcribe_3_0": "最準確的 Voxtral，支援 50 多種語言（預覽版）",
+        "microsoft_mai_transcribe_2": "Microsoft AI speech-to-text, 60 languages (preview)",
+        "microsoft_mai_transcribe_1_5": "Previous MAI-Transcribe generation, 43 languages"
       },
       "cloud": {
         "openai_gpt_5_2": "強大的推理模型",

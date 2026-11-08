@@ -295,6 +295,8 @@ export default function UploadAudioView({ onNoteCreated, onOpenSettings }: Uploa
     tinfoilApiKey,
     deepgramApiKey,
     assemblyaiApiKey,
+    microsoftSpeechApiKey,
+    microsoftSpeechEndpoint,
     customTranscriptionApiKey,
   } = apiKeys;
   const policyState = usePolicySnapshot();
@@ -471,6 +473,8 @@ export default function UploadAudioView({ onNoteCreated, onOpenSettings }: Uploa
                 tinfoilApiKey,
                 deepgramApiKey,
                 assemblyaiApiKey,
+                microsoftSpeechApiKey,
+                microsoftSpeechEndpoint,
                 customTranscriptionApiKey,
               })
             );
@@ -520,6 +524,8 @@ export default function UploadAudioView({ onNoteCreated, onOpenSettings }: Uploa
     tinfoilApiKey,
     deepgramApiKey,
     assemblyaiApiKey,
+    microsoftSpeechApiKey,
+    microsoftSpeechEndpoint,
     customTranscriptionApiKey,
     cortiClientId,
     cortiClientSecret,

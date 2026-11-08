@@ -965,6 +965,10 @@
     "tinfoil": {
       "transportNote": "Tinfoil はストリーミングに Voxtral Mini 4B を、バッチ処理に Voxtral Small 24B を使用します。",
       "docsLink": "ドキュメントを見る"
+    },
+    "microsoft": {
+      "endpoint": "Endpoint or region",
+      "endpointHint": "Paste the Endpoint from your Azure Speech or Foundry resource (Keys and Endpoint), or a region that serves MAI-Transcribe such as northeurope or eastus. Audio is re-encoded to WAV before upload."
     }
   },
   "hooks": {
@@ -2993,7 +2997,9 @@
         "assemblyai_universal_3_5_pro": "最高精度のリアルタイム、18言語",
         "assemblyai_universal_3_6_pro": "最高精度のリアルタイム、32言語",
         "mistral_voxtral_mini_transcribe_3_0": "50 以上の言語に対応した高速文字起こし（プレビュー）",
-        "mistral_voxtral_small_transcribe_3_0": "最も高精度な Voxtral、50 以上の言語（プレビュー）"
+        "mistral_voxtral_small_transcribe_3_0": "最も高精度な Voxtral、50 以上の言語（プレビュー）",
+        "microsoft_mai_transcribe_2": "Microsoft AI speech-to-text, 60 languages (preview)",
+        "microsoft_mai_transcribe_1_5": "Previous MAI-Transcribe generation, 43 languages"
       },
       "cloud": {
         "openai_gpt_5_2": "強力な推論モデル",

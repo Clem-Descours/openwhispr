@@ -965,6 +965,10 @@
     "tinfoil": {
       "transportNote": "Tinfoil diffuse avec Voxtral Mini 4B et traite les lots avec Voxtral Small 24B.",
       "docsLink": "Voir la documentation"
+    },
+    "microsoft": {
+      "endpoint": "Endpoint ou région",
+      "endpointHint": "Collez l'endpoint de votre ressource Azure Speech ou Foundry (Clés et point de terminaison), ou une région qui sert MAI-Transcribe comme northeurope ou eastus. L'audio est réencodé en WAV avant l'envoi."
     }
   },
   "hooks": {
@@ -3091,7 +3095,9 @@
         "assemblyai_universal_3_5_pro": "Précision maximale en temps réel, 18 langues",
         "assemblyai_universal_3_6_pro": "Précision maximale en temps réel, 32 langues",
         "mistral_voxtral_mini_transcribe_3_0": "Transcription rapide dans plus de 50 langues (aperçu)",
-        "mistral_voxtral_small_transcribe_3_0": "Le Voxtral le plus précis, plus de 50 langues (aperçu)"
+        "mistral_voxtral_small_transcribe_3_0": "Le Voxtral le plus précis, plus de 50 langues (aperçu)",
+        "microsoft_mai_transcribe_2": "Reconnaissance vocale Microsoft AI, 60 langues (préversion)",
+        "microsoft_mai_transcribe_1_5": "Génération précédente de MAI-Transcribe, 43 langues"
       },
       "cloud": {
         "openai_gpt_5_2": "Modèle de raisonnement performant",

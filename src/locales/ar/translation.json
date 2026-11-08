@@ -286,7 +286,9 @@
         "assemblyai_universal_3_5_pro": "أعلى دقة في الوقت الفعلي، 18 لغة",
         "assemblyai_universal_3_6_pro": "أعلى دقة في الوقت الفعلي، 32 لغة",
         "mistral_voxtral_mini_transcribe_3_0": "تفريغ سريع بأكثر من 50 لغة (معاينة)",
-        "mistral_voxtral_small_transcribe_3_0": "Voxtral الأكثر دقة، أكثر من 50 لغة (معاينة)"
+        "mistral_voxtral_small_transcribe_3_0": "Voxtral الأكثر دقة، أكثر من 50 لغة (معاينة)",
+        "microsoft_mai_transcribe_2": "Microsoft AI speech-to-text, 60 languages (preview)",
+        "microsoft_mai_transcribe_1_5": "Previous MAI-Transcribe generation, 43 languages"
       },
       "cloud": {
         "openai_gpt_5_2": "نموذج استنتاج قوي",
@@ -5748,6 +5750,10 @@
     "tinfoil": {
       "transportNote": "يستخدم Tinfoil نموذج Voxtral Mini 4B للتفريغ المباشر (البث)، ونموذج Voxtral Small 24B للمعالجة الدفعية.",
       "docsLink": "قراءة الوثائق"
+    },
+    "microsoft": {
+      "endpoint": "Endpoint or region",
+      "endpointHint": "Paste the Endpoint from your Azure Speech or Foundry resource (Keys and Endpoint), or a region that serves MAI-Transcribe such as northeurope or eastus. Audio is re-encoded to WAV before upload."
     }
   },
   "cleanupPrompt": "التنظيف",

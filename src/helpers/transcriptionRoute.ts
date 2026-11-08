@@ -36,9 +36,14 @@ const BYOK_FILE_SIZE_LIMIT = 25 * 1024 * 1024;
 // Gemini's Interactions API takes inline base64 audio inside a 20 MB total
 // request cap; base64 inflates 4/3, so cap the raw audio lower.
 const GEMINI_FILE_SIZE_LIMIT = 14 * 1024 * 1024;
+// Azure Fast Transcription takes files under 250 MB; dictation is re-encoded to
+// 16 kHz WAV (~1.9 MB/min) in main, so keep headroom for that expansion.
+const MICROSOFT_FILE_SIZE_LIMIT = 200 * 1024 * 1024;
 
 export function byokFileSizeLimit(provider: string): number {
-  return provider === "gemini" ? GEMINI_FILE_SIZE_LIMIT : BYOK_FILE_SIZE_LIMIT;
+  if (provider === "gemini") return GEMINI_FILE_SIZE_LIMIT;
+  if (provider === "microsoft") return MICROSOFT_FILE_SIZE_LIMIT;
+  return BYOK_FILE_SIZE_LIMIT;
 }
 
 const CUSTOM_ENDPOINT_INVALID_MESSAGE_KEY =
@@ -118,7 +123,7 @@ export type TranscriptionRoute =
   | { transport: "local" }
   | {
       transport: "proxied";
-      provider: "tinfoil" | "mistral" | "xai" | "corti" | "gemini";
+      provider: "tinfoil" | "mistral" | "xai" | "corti" | "gemini" | "microsoft";
       model: string | null;
       language?: string;
       sizeCapBytes: number;
@@ -195,6 +200,7 @@ export function resolveByokModel(provider: string, configuredModel?: string): st
       (provider === "mistral" && trimmed.startsWith("voxtral-")) ||
       (provider === "corti" && trimmed.startsWith("corti-")) ||
       (provider === "gemini" && trimmed.startsWith("gemini-")) ||
+      (provider === "microsoft" && trimmed.startsWith("MAI-Transcribe-")) ||
       (provider === "deepgram" && (trimmed.startsWith("nova-") || trimmed.startsWith("flux-"))) ||
       (provider === "assemblyai" &&
         (trimmed.startsWith("universal-") || trimmed.startsWith("slam-")));
@@ -205,6 +211,7 @@ export function resolveByokModel(provider: string, configuredModel?: string): st
   if (provider === "mistral") return "voxtral-mini-latest";
   if (provider === "corti") return "corti-transcribe";
   if (provider === "gemini") return "gemini-3.5-transcribe";
+  if (provider === "microsoft") return "MAI-Transcribe-2";
   if (provider === "deepgram") return "nova-3";
   if (provider === "assemblyai") return "universal-3-6-pro";
   return "gpt-transcribe";
@@ -356,6 +363,17 @@ export function resolveTranscriptionRoute({
       model,
       language,
       sizeCapBytes: GEMINI_FILE_SIZE_LIMIT,
+    };
+  }
+  if (provider === "microsoft") {
+    // Key and endpoint stay in main (maiTranscription.js); the route carries
+    // neither, so a renderer can't redirect the key to another host.
+    return {
+      transport: "proxied",
+      provider,
+      model,
+      language,
+      sizeCapBytes: MICROSOFT_FILE_SIZE_LIMIT,
     };
   }
   if (provider === "corti") {

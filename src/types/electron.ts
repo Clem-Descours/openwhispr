@@ -2683,6 +2683,18 @@ declare global {
         keyterms?: string[];
       }) => Promise<ProxyTranscriptionResult>;
 
+      // Microsoft AI (MAI-Transcribe via Azure Speech) key + endpoint
+      getMicrosoftSpeechKey?: () => Promise<string | null>;
+      saveMicrosoftSpeechKey?: (key: string) => Promise<void>;
+      getMicrosoftSpeechEndpoint?: () => Promise<string | null>;
+      saveMicrosoftSpeechEndpoint?: (endpoint: string) => Promise<void>;
+      proxyMicrosoftTranscription?: (data: {
+        audioBuffer: ArrayBuffer;
+        model?: string;
+        language?: string;
+        keyterms?: string[];
+      }) => Promise<ProxyTranscriptionResult>;
+
       // Mistral API key management
       getMistralKey: () => Promise<string | null>;
       saveMistralKey: (key: string) => Promise<void>;

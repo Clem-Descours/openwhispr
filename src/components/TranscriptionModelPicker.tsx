@@ -283,6 +283,7 @@ const CLOUD_PROVIDER_TABS = [
   { id: "xai", name: "xAI" },
   { id: "mistral", name: "Mistral" },
   { id: "gemini", name: "Gemini" },
+  { id: "microsoft", name: "Microsoft AI" },
   { id: "corti", name: "Corti" },
   { id: "tinfoil", name: "Tinfoil" },
   { id: "deepgram", name: "Deepgram" },
@@ -303,7 +304,9 @@ interface ProviderCredentialField {
     | "cortiTenant"
     | "tinfoilApiKey"
     | "deepgramApiKey"
-    | "assemblyaiApiKey";
+    | "assemblyaiApiKey"
+    | "microsoftSpeechApiKey"
+    | "microsoftSpeechEndpoint";
   input: "secret" | "text" | "select";
   labelKey?: string;
   placeholder?: string;
@@ -367,6 +370,19 @@ const PROVIDER_CREDENTIALS: Record<
   assemblyai: {
     consoleUrl: "https://www.assemblyai.com/dashboard/api-keys",
     fields: [{ key: "assemblyaiApiKey", input: "secret" }],
+  },
+  microsoft: {
+    // Keys and endpoint live on the Speech (or Foundry) resource's "Keys and Endpoint" page.
+    consoleUrl: "https://ai.azure.com",
+    fields: [
+      { key: "microsoftSpeechApiKey", input: "secret" },
+      {
+        key: "microsoftSpeechEndpoint",
+        input: "text",
+        labelKey: "transcription.microsoft.endpoint",
+        placeholder: "https://<resource>.cognitiveservices.azure.com",
+      },
+    ],
   },
 };
 
@@ -503,6 +519,10 @@ export default function TranscriptionModelPicker({
   const deepgramApiKey = useSettingsStore((s) => s.deepgramApiKey);
   const setDeepgramApiKey = useSettingsStore((s) => s.setDeepgramApiKey);
   const assemblyaiApiKey = useSettingsStore((s) => s.assemblyaiApiKey);
+  const microsoftSpeechApiKey = useSettingsStore((s) => s.microsoftSpeechApiKey);
+  const setMicrosoftSpeechApiKey = useSettingsStore((s) => s.setMicrosoftSpeechApiKey);
+  const microsoftSpeechEndpoint = useSettingsStore((s) => s.microsoftSpeechEndpoint);
+  const setMicrosoftSpeechEndpoint = useSettingsStore((s) => s.setMicrosoftSpeechEndpoint);
   const setAssemblyaiApiKey = useSettingsStore((s) => s.setAssemblyaiApiKey);
   const customTranscriptionApiKey = useSettingsStore((s) => s.customTranscriptionApiKey);
   const setCustomTranscriptionApiKey = useSettingsStore((s) => s.setCustomTranscriptionApiKey);
@@ -1218,6 +1238,8 @@ export default function TranscriptionModelPicker({
     tinfoilApiKey: keyDraft.value("tinfoilApiKey", tinfoilApiKey),
     deepgramApiKey: keyDraft.value("deepgramApiKey", deepgramApiKey),
     assemblyaiApiKey: keyDraft.value("assemblyaiApiKey", assemblyaiApiKey),
+    microsoftSpeechApiKey: keyDraft.value("microsoftSpeechApiKey", microsoftSpeechApiKey),
+    microsoftSpeechEndpoint: keyDraft.value("microsoftSpeechEndpoint", microsoftSpeechEndpoint),
   };
   const customKey = keyDraft.value("customTranscriptionApiKey", customTranscriptionApiKey);
   const credentialSetters: Record<ProviderCredentialField["key"], (value: string) => void> = {
@@ -1233,6 +1255,8 @@ export default function TranscriptionModelPicker({
     tinfoilApiKey: setTinfoilApiKey,
     deepgramApiKey: setDeepgramApiKey,
     assemblyaiApiKey: setAssemblyaiApiKey,
+    microsoftSpeechApiKey: setMicrosoftSpeechApiKey,
+    microsoftSpeechEndpoint: setMicrosoftSpeechEndpoint,
   };
 
   const endpointHold = useFocusHold();
@@ -1289,7 +1313,9 @@ export default function TranscriptionModelPicker({
             apiKey: providerKey,
             model: panelModel,
           },
-          ready: Boolean(providerKey.trim()),
+          // The connection check has no Microsoft probe yet: the first dictation
+          // is the check (errors surface with the provider's own message).
+          ready: Boolean(providerKey.trim()) && displayedCloudProvider !== "microsoft",
           typed: providerKey,
           context: [panelModel],
         };
@@ -1699,6 +1725,11 @@ export default function TranscriptionModelPicker({
                       onModelSelect={handleCloudModelSelect}
                       colorScheme="purple"
                     />
+                    {displayedCloudProvider === "microsoft" && (
+                      <p className="text-xs text-muted-foreground/70">
+                        {t("transcription.microsoft.endpointHint")}
+                      </p>
+                    )}
                     {displayedCloudProvider === "tinfoil" && (
                       <p className="text-xs text-muted-foreground/70">
                         {t("transcription.tinfoil.transportNote")}{" "}

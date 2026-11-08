@@ -1,4 +1,5 @@
 import bundled from "./modelRegistryData.json" with { type: "json" };
+import { withForkProviders } from "./forkProviders.js";
 
 const PROVIDER_SECTIONS = [
   "cloudProviders",
@@ -21,7 +22,7 @@ const retiredKey = (section, providerId, modelId) => `${section}\0${providerId}\
 // Retired models leave the catalog every picker and route reads, so nothing can offer or
 // select them; the index keeps what lifecycle code needs to move selections on.
 function splitRetired(catalog) {
-  const visible = structuredClone(catalog);
+  const visible = structuredClone(withForkProviders(catalog));
   const retired = new Map();
   // Nothing a catalog holds may stop the app from starting, and every reader expects lists
   // and maps. Registry CI and model-registry:verify stop these shapes reaching a release.

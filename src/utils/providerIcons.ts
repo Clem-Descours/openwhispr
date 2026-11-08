@@ -41,6 +41,8 @@ export const PROVIDER_ICONS: Record<string, string> = {
   liquidai: liquidaiIcon,
   bedrock: bedrockIcon,
   azure: azureIcon,
+  // MAI-Transcribe is served through Azure Speech; reuse the bundled Azure mark.
+  microsoft: azureIcon,
   vertex: vertexIcon,
   xai: xaiIcon,
   corti: cortiIcon,
