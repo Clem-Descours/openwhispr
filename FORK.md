@@ -27,7 +27,7 @@ The values can also be set in the `.env` file: `MICROSOFT_SPEECH_KEY` and
 | Audio file upload          | Yes, with native speaker diarization and segment timestamps.                                                  |
 | Retry from history         | Yes.                                                                                                          |
 | Live meeting transcription | No: `MAI-Transcribe-2` is batch only (`MAI-Transcribe-2-Streaming` is a separate realtime API).               |
-| Settings connection check  | Not implemented; the first dictation validates the key and endpoint.                                          |
+| Connection check           | Yes (Settings and onboarding): an empty request to the endpoint, so nothing is transcribed or billed.          |
 
 ## Design notes
 

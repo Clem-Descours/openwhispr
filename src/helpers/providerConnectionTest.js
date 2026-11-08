@@ -22,6 +22,9 @@ const ENDPOINTS = {
 const DEEPGRAM_PROJECTS_ENDPOINT = "https://api.deepgram.com/v1/projects";
 // Turns a made-up key away before embedding anything; a valid key pays for one token.
 const TINFOIL_KEY_ENDPOINT = "https://inference.tinfoil.sh/v1/embeddings";
+// Microsoft's Speech hosts are per resource or per region, so the address comes from the
+// user's endpoint, and only ever names one of Microsoft's own hosts (maiTranscription.js).
+const { buildTranscribeUrl } = require("./maiTranscription");
 
 // Renderers translate errorCode via onboarding.rehaul.provider.errors.*; the
 // English `error` string stays for logs and older callers.
@@ -212,6 +215,21 @@ function resolveProviderRequest(config) {
     redirect = "follow";
   }
 
+  if (provider === "microsoft") {
+    const raw = String(config?.baseUrl || "").trim();
+    if (!raw) {
+      throw new ConnectionTestError("endpointRequired", "Enter an endpoint URL before testing.");
+    }
+    const url = buildTranscribeUrl(raw);
+    if (!url) {
+      throw new ConnectionTestError(
+        "invalidUrl",
+        "The endpoint must be an HTTPS Azure Speech address or a region name."
+      );
+    }
+    endpoints = [url];
+  }
+
   if (endpoints.length === 0) {
     throw new ConnectionTestError(
       "unsupportedProvider",
@@ -233,6 +251,8 @@ function resolveProviderRequest(config) {
       headers.Authorization = `Token ${apiKey}`;
     } else if (provider === "assemblyai") {
       headers.Authorization = apiKey;
+    } else if (provider === "microsoft") {
+      headers["Ocp-Apim-Subscription-Key"] = apiKey;
     } else {
       headers.Authorization = `Bearer ${apiKey}`;
     }
@@ -417,6 +437,7 @@ async function testProviderConnection(
 
   const provider = String(config?.provider || "").toLowerCase();
   if (provider === "deepgram") return testDeepgramKey(request, fetchImpl);
+  if (provider === "microsoft") return testMicrosoftKey(request, fetchImpl);
 
   const model = String(config?.model || "").trim();
   let failure = null;
@@ -476,6 +497,32 @@ async function testTranscriptionEndpoint(request, model, fetchImpl) {
         };
       }
       return describeStatusFailure(response.status, "custom");
+    },
+    { method: "POST", body }
+  );
+  return failure ? { success: false, ...failure } : { success: true };
+}
+
+// Microsoft's transcribe address answers a request with no audio: a 401 or 403 means the
+// key doesn't belong to this resource or region, a 400-class refusal of the empty body means
+// key and address both work. Nothing is transcribed, so nothing is billed.
+async function testMicrosoftKey(request, fetchImpl) {
+  const body = new FormData();
+  body.append("definition", JSON.stringify({ enhancedMode: { enabled: true } }));
+  const failure = await probe(
+    request.endpoint,
+    request,
+    fetchImpl,
+    async (response) => {
+      if (response.ok || [400, 415, 422].includes(response.status)) return null;
+      if (response.status === 404 || response.status === 405) {
+        return {
+          errorCode: "transcriptionEndpointNotFound",
+          error: "Nothing takes transcriptions at this address.",
+          status: response.status,
+        };
+      }
+      return describeStatusFailure(response.status, "microsoft");
     },
     { method: "POST", body }
   );

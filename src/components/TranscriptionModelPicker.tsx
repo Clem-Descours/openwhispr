@@ -1266,6 +1266,7 @@ export default function TranscriptionModelPicker({
   const panelModel = selectedCloudProvider === displayedCloudProvider ? displayedCloudModel : "";
   const isCustom = displayedCloudProvider === "custom";
   const isCorti = displayedCloudProvider === "corti";
+  const isMicrosoft = displayedCloudProvider === "microsoft";
   const providerKey = credentialValues[providerCredentials.fields[0].key];
   // `typed` is what is typed into this provider's fields (a speech server's address and
   // model name included); `context` is what is chosen instead.
@@ -1306,19 +1307,30 @@ export default function TranscriptionModelPicker({
           typed: `${credentialValues.cortiClientId}\n${credentialValues.cortiClientSecret}`,
           context: [cortiEnvironment, credentialValues.cortiTenant],
         }
-      : {
-          config: {
-            scope: "transcription",
-            provider: displayedCloudProvider,
-            apiKey: providerKey,
-            model: panelModel,
-          },
-          // The connection check has no Microsoft probe yet: the first dictation
-          // is the check (errors surface with the provider's own message).
-          ready: Boolean(providerKey.trim()) && displayedCloudProvider !== "microsoft",
-          typed: providerKey,
-          context: [panelModel],
-        };
+      : isMicrosoft
+        ? {
+            config: {
+              scope: "transcription",
+              provider: "microsoft",
+              apiKey: providerKey,
+              baseUrl: credentialValues.microsoftSpeechEndpoint,
+              model: panelModel,
+            },
+            ready: Boolean(providerKey.trim() && credentialValues.microsoftSpeechEndpoint.trim()),
+            typed: `${providerKey}\n${credentialValues.microsoftSpeechEndpoint}`,
+            context: [panelModel],
+          }
+        : {
+            config: {
+              scope: "transcription",
+              provider: displayedCloudProvider,
+              apiKey: providerKey,
+              model: panelModel,
+            },
+            ready: Boolean(providerKey.trim()),
+            typed: providerKey,
+            context: [panelModel],
+          };
   const delayMs = useTypingPause({
     typed: connection.typed,
     context: JSON.stringify([

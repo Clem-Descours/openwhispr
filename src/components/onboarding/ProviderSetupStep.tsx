@@ -189,6 +189,8 @@ function providerCredential(provider: string, store: ReturnType<typeof useSettin
       return { value: store.deepgramApiKey, set: store.setDeepgramApiKey };
     case "assemblyai":
       return { value: store.assemblyaiApiKey, set: store.setAssemblyaiApiKey };
+    case "microsoft":
+      return { value: store.microsoftSpeechApiKey, set: store.setMicrosoftSpeechApiKey };
     default:
       return { value: "", set: (_value: string) => undefined };
   }
@@ -303,6 +305,10 @@ export function ByokProviderStep({
   const [draftCortiClientSecret, setDraftCortiClientSecret] = useState(
     seed.provider === "corti" ? store.cortiClientSecret : ""
   );
+  // Microsoft keys belong to one resource or region, so its endpoint rides with the key.
+  const [draftMicrosoftEndpoint, setDraftMicrosoftEndpoint] = useState(
+    store.microsoftSpeechEndpoint
+  );
   const [endpointFocused, setEndpointFocused] = useState(false);
 
   // The card the saved setup picked goes on the session once, at mount (both deps are
@@ -356,6 +362,12 @@ export function ByokProviderStep({
       : "";
   const savedCortiClientId = selectedProvider === "corti" ? store.cortiClientId : "";
   const savedCortiClientSecret = selectedProvider === "corti" ? store.cortiClientSecret : "";
+  const savedMicrosoftEndpoint = store.microsoftSpeechEndpoint;
+  useEffect(() => {
+    if (savedMicrosoftEndpoint) {
+      setDraftMicrosoftEndpoint((current) => current || savedMicrosoftEndpoint);
+    }
+  }, [savedMicrosoftEndpoint]);
   useEffect(() => {
     if (savedKey) setDraftApiKey((current) => current || savedKey);
     else if (strandedKey) setDraftApiKey((current) => (current === strandedKey ? "" : current));
@@ -394,8 +406,13 @@ export function ByokProviderStep({
 
   const testingProvider = selfHosted ? "custom" : selectedProvider;
   const testingKey = draftApiKey;
-  const testingBaseUrl = selfHosted ? draftBaseUrl : undefined;
   const isCortiTranscription = !assistant && !selfHosted && selectedProvider === "corti";
+  const isMicrosoftTranscription = !assistant && !selfHosted && selectedProvider === "microsoft";
+  const testingBaseUrl = selfHosted
+    ? draftBaseUrl
+    : isMicrosoftTranscription
+      ? draftMicrosoftEndpoint
+      : undefined;
   // A provider counts only while policy still lists it: a policy that loads after mount
   // can remove the one this card opened on.
   const fieldsReady = selfHosted
@@ -407,7 +424,12 @@ export function ByokProviderStep({
           draftCortiClientSecret.trim() &&
           selectedModel
         )
-      : Boolean(currentProvider && selectedModel && testingKey.trim());
+      : Boolean(
+          currentProvider &&
+          selectedModel &&
+          testingKey.trim() &&
+          (!isMicrosoftTranscription || draftMicrosoftEndpoint.trim())
+        );
 
   const check = useConnectionAutoCheck({
     config: {
@@ -423,7 +445,7 @@ export function ByokProviderStep({
     },
     ready: fieldsReady,
     // A half-typed address may belong to someone else: nothing is sent while it is edited.
-    hold: selfHosted && endpointFocused,
+    hold: (selfHosted || isMicrosoftTranscription) && endpointFocused,
   });
   // A provider that gave no verdict (busy, slow or unreachable) refused nothing, so its
   // setup can be used; only a failure that faults it keeps Proceed locked.
@@ -477,6 +499,7 @@ export function ByokProviderStep({
         store.setCortiClientSecret(draftCortiClientSecret);
       } else {
         knownCredential.set(draftApiKey);
+        if (isMicrosoftTranscription) store.setMicrosoftSpeechEndpoint(draftMicrosoftEndpoint);
       }
       store.setCloudTranscriptionMode("byok");
       store.switchCloudTranscriptionProvider("dictation", selectedProvider);
@@ -637,18 +660,34 @@ export function ByokProviderStep({
                 />
               </div>
             ) : (
-              <ProviderCheckField
-                label={t("onboarding.rehaul.provider.apiKey")}
-                check={check}
-                invalidOn="credentialsRejected"
-                type="password"
-                value={draftApiKey}
-                onChange={(event) => setDraftApiKey(event.target.value)}
-                placeholder={t("onboarding.rehaul.provider.apiKeyPlaceholder")}
-                disabled={!selectedProvider}
-                autoComplete="off"
-                spellCheck={false}
-              />
+              <>
+                <ProviderCheckField
+                  label={t("onboarding.rehaul.provider.apiKey")}
+                  // With Microsoft the endpoint completes the connection and carries its status.
+                  check={isMicrosoftTranscription ? undefined : check}
+                  invalidOn="credentialsRejected"
+                  type="password"
+                  value={draftApiKey}
+                  onChange={(event) => setDraftApiKey(event.target.value)}
+                  placeholder={t("onboarding.rehaul.provider.apiKeyPlaceholder")}
+                  disabled={!selectedProvider}
+                  autoComplete="off"
+                  spellCheck={false}
+                />
+                {isMicrosoftTranscription && (
+                  <ProviderCheckField
+                    label={t("transcription.microsoft.endpoint")}
+                    check={check}
+                    value={draftMicrosoftEndpoint}
+                    onChange={(event) => setDraftMicrosoftEndpoint(event.target.value)}
+                    onFocus={() => setEndpointFocused(true)}
+                    onBlur={releaseEndpoint}
+                    placeholder="northeurope"
+                    autoComplete="off"
+                    spellCheck={false}
+                  />
+                )}
+              </>
             )}
           </>
         )}
