@@ -387,7 +387,7 @@ test("commit timeout requests recovery without sending a duplicate commit", (t) 
     t.mock.timers.tick(20250);
 
     assert.equal(sentEvents(streaming.ws, "input_audio_buffer.commit").length, 1);
-    assert.deepEqual(errors, ["Tinfoil did not finish the current transcript segment."]);
+    assert.deepEqual(errors, ["Tinfoil Realtime did not finish the current transcript segment."]);
   })();
 });
 

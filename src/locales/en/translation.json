@@ -968,7 +968,7 @@
     },
     "microsoft": {
       "endpoint": "Endpoint or region",
-      "endpointHint": "Paste the Endpoint from your Azure Speech or Foundry resource (Keys and Endpoint), or a region that serves MAI-Transcribe such as northeurope or eastus. Audio is re-encoded to WAV before upload."
+      "endpointHint": "Paste the Endpoint from your Azure Speech or Foundry resource (Keys and Endpoint), or a region that serves MAI-Transcribe such as northeurope or eastus. Audio is re-encoded to WAV before upload. Live note recording needs the resource endpoint, not a region."
     }
   },
   "hooks": {
@@ -3097,6 +3097,7 @@
         "mistral_voxtral_mini_transcribe_3_0": "Fast transcription in 50+ languages (preview)",
         "mistral_voxtral_small_transcribe_3_0": "Most accurate Voxtral, 50+ languages (preview)",
         "microsoft_mai_transcribe_2": "Microsoft AI speech-to-text, 60 languages (preview)",
+        "microsoft_mai_transcribe_2_streaming": "Live transcription for note recording (preview)",
         "microsoft_mai_transcribe_1_5": "Previous MAI-Transcribe generation, 43 languages"
       },
       "cloud": {

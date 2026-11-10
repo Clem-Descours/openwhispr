@@ -51,6 +51,9 @@ class TinfoilRealtimeStreaming extends OpenAIRealtimeStreaming {
     this._turnSpeechStartedAt = 0;
     this._turnHasAudio = false;
     this._recoveryRequested = false;
+    // voxtral's support for a pinned language is unverified; subclasses that
+    // honour one turn this on.
+    this.pinsLanguage = false;
   }
 
   async connect(options = {}) {
@@ -58,9 +61,7 @@ class TinfoilRealtimeStreaming extends OpenAIRealtimeStreaming {
     const model = options.model || TINFOIL_REALTIME_MODEL;
     return super.connect({
       ...options,
-      // voxtral's support for a pinned language is unverified, so meetings keep
-      // auto-detection like dictation does.
-      language: undefined,
+      language: this.pinsLanguage ? options.language : undefined,
       model,
       createSocket: () => this._createSocketImpl({ model, apiKey }),
     });
@@ -113,7 +114,10 @@ class TinfoilRealtimeStreaming extends OpenAIRealtimeStreaming {
         return;
       }
       super.handleMessage(data);
-      this._requestRecovery(new Error(error.message || "Tinfoil commit failed"), false);
+      this._requestRecovery(
+        new Error(error.message || `${this.providerLabel} commit failed`),
+        false
+      );
       return;
     }
 
@@ -141,7 +145,9 @@ class TinfoilRealtimeStreaming extends OpenAIRealtimeStreaming {
     const now = Date.now();
     if (this._commitInFlight) {
       if (now - this._commitSentAt >= COMMIT_ACK_TIMEOUT_MS) {
-        this._requestRecovery(new Error("Tinfoil did not finish the current transcript segment."));
+        this._requestRecovery(
+          new Error(`${this.providerLabel} did not finish the current transcript segment.`)
+        );
       }
       return;
     }

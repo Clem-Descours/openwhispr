@@ -108,6 +108,18 @@ const REALTIME_TOKEN_PROVIDERS = {
     return duplicate(streams, apiKey);
   },
 
+  // The subscription key opens the socket directly (api-key header), so both
+  // meeting streams share it.
+  "microsoft-realtime": async ({ environmentManager }, options, streams) => {
+    const apiKey = environmentManager.getMicrosoftSpeechKey();
+    if (!apiKey) {
+      const err = new Error("No Microsoft AI key configured. Add your key in Settings.");
+      err.code = "NO_API";
+      throw err;
+    }
+    return duplicate(streams, apiKey);
+  },
+
   "openai-realtime": async ({ environmentManager, postServerToken }, options, streams) => {
     if (options.mode === "byok") {
       const apiKey = environmentManager.getOpenAIKey();

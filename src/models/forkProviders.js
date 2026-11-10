@@ -13,6 +13,8 @@ export const FORK_TRANSCRIPTION_PROVIDERS = [
     id: "microsoft",
     name: "Microsoft AI",
     defaultModel: "MAI-Transcribe-2",
+    // Dictation and uploads are batch: a streaming selection falls back to this.
+    batchModel: "MAI-Transcribe-2",
     // Informational only: the real endpoint is per-resource (see maiTranscription.js).
     baseUrl: "https://cognitiveservices.azure.com",
     models: [
@@ -21,6 +23,14 @@ export const FORK_TRANSCRIPTION_PROVIDERS = [
         name: "MAI-Transcribe-2",
         description: "Microsoft AI speech-to-text, 60 languages (preview)",
         descriptionKey: "models.descriptions.transcription.microsoft_mai_transcribe_2",
+      },
+      {
+        // Note recording only. The id is the Foundry deployment name the socket asks for.
+        id: "MAI-Transcribe-2-Streaming",
+        name: "MAI-Transcribe-2-Streaming",
+        description: "Live transcription for note recording (preview)",
+        descriptionKey: "models.descriptions.transcription.microsoft_mai_transcribe_2_streaming",
+        streaming: true,
       },
       {
         id: "MAI-Transcribe-1.5",

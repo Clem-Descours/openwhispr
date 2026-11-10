@@ -58,10 +58,36 @@ function normalizeSpeechEndpoint(input) {
   return url.origin;
 }
 
+// A Foundry resource answers on two hosts with the same name: Speech's
+// cognitiveservices.azure.com and Foundry's services.ai.azure.com. Fast
+// transcription is a Speech API, so it always goes to the Speech host.
+const FOUNDRY_HOST_SUFFIX = ".services.ai.azure.com";
+const SPEECH_HOST_SUFFIX = ".cognitiveservices.azure.com";
+
+function resourceNameOf(origin) {
+  const host = new URL(origin).hostname.toLowerCase();
+  for (const suffix of [SPEECH_HOST_SUFFIX, FOUNDRY_HOST_SUFFIX]) {
+    if (host.endsWith(suffix)) return host.slice(0, -suffix.length);
+  }
+  return null;
+}
+
 function buildTranscribeUrl(endpoint) {
-  const origin = normalizeSpeechEndpoint(endpoint);
+  let origin = normalizeSpeechEndpoint(endpoint);
   if (!origin) return null;
+  const resource = resourceNameOf(origin);
+  if (resource) origin = `https://${resource}${SPEECH_HOST_SUFFIX}`;
   return `${origin}/speechtotext/transcriptions:transcribe?api-version=${MAI_API_VERSION}`;
+}
+
+// MAI-Transcribe-2-Streaming is served by the Foundry resource itself, so a bare
+// region (which names no resource) can't reach it.
+// https://learn.microsoft.com/azure/ai-services/speech-service/mai-transcribe-2-streaming-realtime
+function buildRealtimeUrl(endpoint) {
+  const origin = normalizeSpeechEndpoint(endpoint);
+  const resource = origin && resourceNameOf(origin);
+  if (!resource) return null;
+  return `wss://${resource}${FOUNDRY_HOST_SUFFIX}/mai/v1/realtime?intent=transcription`;
 }
 
 function sanitizePhrases(phrases) {
@@ -293,6 +319,7 @@ module.exports = {
   MAI_DEFAULT_MODEL,
   normalizeSpeechEndpoint,
   buildTranscribeUrl,
+  buildRealtimeUrl,
   buildDefinition,
   sanitizePhrases,
   sniffAudioContainer,

@@ -8609,6 +8609,12 @@ class IPCHandlers {
 
     // Labels the socket for field logs and, for system, swaps in the more
     // sensitive threshold (see MEETING_SYSTEM_VAD_THRESHOLD).
+    // Microsoft's socket is per resource; the address is read here, never from the renderer.
+    const microsoftMeetingConnectOptions = (options) =>
+      options.provider === "microsoft-realtime"
+        ? { endpoint: this.environmentManager.getMicrosoftSpeechEndpoint() }
+        : {};
+
     const withMeetingSourceConnectOpts = (connectOpts, source) => ({
       ...connectOpts,
       streamLabel: source,
@@ -8676,6 +8682,7 @@ class IPCHandlers {
             tenant: options.tenant,
             keyterms: options.keyterms,
             sampleRate: MEETING_STREAM_SAMPLE_RATE,
+            ...microsoftMeetingConnectOptions(options),
             ...(await enterpriseMeetingConnectOptions(tokenEvent, options)),
           };
 
@@ -8977,6 +8984,7 @@ class IPCHandlers {
         tenant: options.tenant,
         keyterms: options.keyterms,
         sampleRate: MEETING_STREAM_SAMPLE_RATE,
+        ...microsoftMeetingConnectOptions(options),
         ...(await enterpriseMeetingConnectOptions(event, options)),
       };
       const { mode: systemAudioMode } = await getMeetingSystemAudioPlan();

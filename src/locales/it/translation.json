@@ -968,7 +968,7 @@
     },
     "microsoft": {
       "endpoint": "Endpoint o regione",
-      "endpointHint": "Incolla l'endpoint della tua risorsa Azure Speech o Foundry (Chiavi ed endpoint), oppure una regione che offre MAI-Transcribe come northeurope o eastus. L'audio viene ricodificato in WAV prima del caricamento."
+      "endpointHint": "Incolla l'endpoint della tua risorsa Azure Speech o Foundry (Chiavi ed endpoint), oppure una regione che offre MAI-Transcribe come northeurope o eastus. L'audio viene ricodificato in WAV prima del caricamento. Le note delle riunioni in tempo reale richiedono l'endpoint della risorsa, non una regione."
     }
   },
   "hooks": {
@@ -2999,6 +2999,7 @@
         "mistral_voxtral_mini_transcribe_3_0": "Trascrizione veloce in oltre 50 lingue (anteprima)",
         "mistral_voxtral_small_transcribe_3_0": "Il Voxtral più preciso, oltre 50 lingue (anteprima)",
         "microsoft_mai_transcribe_2": "Riconoscimento vocale Microsoft AI, 60 lingue (anteprima)",
+        "microsoft_mai_transcribe_2_streaming": "Trascrizione in tempo reale per le note delle riunioni (anteprima)",
         "microsoft_mai_transcribe_1_5": "Generazione precedente di MAI-Transcribe, 43 lingue"
       },
       "cloud": {

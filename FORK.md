@@ -17,6 +17,19 @@ cloud (BYOK) transcription provider, using Microsoft's `MAI-Transcribe-2` model 
 The values can also be set in the `.env` file: `MICROSOFT_SPEECH_KEY` and
 `MICROSOFT_SPEECH_ENDPOINT`.
 
+## Live note recording
+
+Note recording streams, so it uses `MAI-Transcribe-2-Streaming` instead of the batch model:
+
+1. In the Foundry portal, deploy **MAI-Transcribe-2-Streaming** (Build → Models → Deploy a base
+   model) and keep the default deployment name.
+2. The endpoint in Settings must name the resource (`https://<resource>.services.ai.azure.com` or
+   `https://<resource>.cognitiveservices.azure.com`). A bare region works for dictation only.
+3. Settings → Note Recording → Microsoft AI → `MAI-Transcribe-2-Streaming`.
+
+The model has no server-side speech detection, so the app commits each turn itself (the same loop
+as Tinfoil, `maiRealtimeStreaming.js`).
+
 ## What works
 
 | Surface                    | Status                                                                                                        |
@@ -26,8 +39,8 @@ The values can also be set in the `.env` file: `MICROSOFT_SPEECH_KEY` and
 | Language                   | Sent as a bare locale (`fr`); auto-detect when "auto". A locale MAI rejects is retried once with auto-detect. |
 | Audio file upload          | Yes, with native speaker diarization and segment timestamps.                                                  |
 | Retry from history         | Yes.                                                                                                          |
-| Live meeting transcription | No: `MAI-Transcribe-2` is batch only (`MAI-Transcribe-2-Streaming` is a separate realtime API).               |
-| Connection check           | Yes (Settings and onboarding): an empty request to the endpoint, so nothing is transcribed or billed.          |
+| Live meeting transcription | Yes, with `MAI-Transcribe-2-Streaming` (preview) over the Realtime API. See below.                            |
+| Connection check           | Yes (Settings and onboarding): an empty request to the endpoint, so nothing is transcribed or billed.         |
 
 ## Design notes
 
