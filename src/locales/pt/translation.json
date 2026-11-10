@@ -946,6 +946,10 @@
       "docsLink": "Ver a documentação"
     },
     "microsoft": {
+      "meetingKey": "Chave para notas de reunião",
+      "meetingEndpoint": "Endpoint para notas de reunião",
+      "meetingOptional": "Opcional",
+      "meetingHint": "Apenas para notas de reunião. Deixe em branco para usar a chave acima; preencha se o MAI-Transcribe-2-Streaming estiver implantado em outro recurso (por exemplo em swedencentral).",
       "endpoint": "Endpoint ou região",
       "endpointHint": "Cole o endpoint do seu recurso Azure Speech ou Foundry (Chaves e ponto de extremidade), ou uma região que ofereça o MAI-Transcribe, como northeurope ou eastus. O áudio é recodificado em WAV antes do envio. As notas de reunião ao vivo precisam do endpoint do recurso, não de uma região."
     }

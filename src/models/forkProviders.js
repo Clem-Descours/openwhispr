@@ -42,6 +42,10 @@ export const FORK_TRANSCRIPTION_PROVIDERS = [
   },
 ];
 
+// Streaming models with no batch route: offered for note recording only, never
+// in the dictation, upload or onboarding pickers.
+export const MEETING_ONLY_MODEL_IDS = new Set(["MAI-Transcribe-2-Streaming"]);
+
 export function withForkProviders(catalog) {
   if (!catalog || !Array.isArray(catalog.transcriptionProviders)) return catalog;
   const existing = new Set(catalog.transcriptionProviders.map((provider) => provider?.id));

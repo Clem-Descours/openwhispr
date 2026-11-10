@@ -6,6 +6,7 @@
 // table is unit-testable without Electron.
 
 const { readPolicyResponseError } = require("./policyResponseError");
+const { resolveMeetingCredentials } = require("./maiTranscription");
 
 const dual = (streams, factory) =>
   streams === 2 ? Promise.all([factory(), factory()]) : factory();
@@ -111,7 +112,7 @@ const REALTIME_TOKEN_PROVIDERS = {
   // The subscription key opens the socket directly (api-key header), so both
   // meeting streams share it.
   "microsoft-realtime": async ({ environmentManager }, options, streams) => {
-    const apiKey = environmentManager.getMicrosoftSpeechKey();
+    const { apiKey } = resolveMeetingCredentials(environmentManager);
     if (!apiKey) {
       const err = new Error("No Microsoft AI key configured. Add your key in Settings.");
       err.code = "NO_API";

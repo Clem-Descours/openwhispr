@@ -967,6 +967,10 @@
       "docsLink": "Voir la documentation"
     },
     "microsoft": {
+      "meetingKey": "Clé pour les notes de réunion",
+      "meetingEndpoint": "Endpoint pour les notes de réunion",
+      "meetingOptional": "Facultatif",
+      "meetingHint": "Pour les notes de réunion uniquement. Laissez vide pour utiliser la clé ci-dessus ; remplissez si MAI-Transcribe-2-Streaming est déployé sur une autre ressource (par exemple en swedencentral).",
       "endpoint": "Endpoint ou région",
       "endpointHint": "Collez l'endpoint de votre ressource Azure Speech ou Foundry (Clés et point de terminaison), ou une région qui sert MAI-Transcribe comme northeurope ou eastus. L'audio est réencodé en WAV avant l'envoi. La prise de notes en direct demande l'endpoint de la ressource, pas une région."
     }

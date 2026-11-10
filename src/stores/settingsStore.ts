@@ -1336,6 +1336,8 @@ export interface SettingsState
   setAssemblyaiApiKey: (key: string) => void;
   setMicrosoftSpeechApiKey: (key: string) => void;
   setMicrosoftSpeechEndpoint: (endpoint: string) => void;
+  setMicrosoftMeetingApiKey: (key: string) => void;
+  setMicrosoftMeetingEndpoint: (endpoint: string) => void;
   setCustomTranscriptionApiKey: (key: string) => void;
   setCleanupCustomApiKey: (key: string) => void;
 
@@ -1581,6 +1583,8 @@ const SECRET_IPC_SAVERS = {
   // Named after their store keys so api-key-updated refreshes find them.
   microsoftSpeech: "saveMicrosoftSpeechKey",
   microsoftSpeechEndpoint: "saveMicrosoftSpeechEndpoint",
+  microsoftMeeting: "saveMicrosoftMeetingKey",
+  microsoftMeetingEndpoint: "saveMicrosoftMeetingEndpoint",
   customTranscription: "saveCustomTranscriptionKey",
   cleanupCustom: "saveCleanupCustomKey",
   noteFormattingCustom: "saveNoteFormattingCustomKey",
@@ -1633,6 +1637,8 @@ const STALE_SECRET_LOCALSTORAGE_KEYS = [
   "assemblyaiApiKey",
   "microsoftSpeechApiKey",
   "microsoftSpeechEndpoint",
+  "microsoftMeetingApiKey",
+  "microsoftMeetingEndpoint",
   "customTranscriptionApiKey",
   "customReasoningApiKey",
   "cleanupCustomApiKey",
@@ -1764,6 +1770,8 @@ export const useSettingsStore = create<SettingsState>()((set, get) => ({
   assemblyaiApiKey: "",
   microsoftSpeechApiKey: "",
   microsoftSpeechEndpoint: "",
+  microsoftMeetingApiKey: "",
+  microsoftMeetingEndpoint: "",
   customTranscriptionApiKey: "",
   cleanupCustomApiKey: "",
 
@@ -2453,6 +2461,11 @@ export const useSettingsStore = create<SettingsState>()((set, get) => ({
     "microsoftSpeechEndpoint",
     "microsoftSpeechEndpoint"
   ),
+  setMicrosoftMeetingApiKey: createSecretSetter("microsoftMeetingApiKey", "microsoftMeeting"),
+  setMicrosoftMeetingEndpoint: createSecretSetter(
+    "microsoftMeetingEndpoint",
+    "microsoftMeetingEndpoint"
+  ),
   setMistralApiKey: createSecretSetter("mistralApiKey", "mistral", "mistral"),
   setOpenrouterApiKey: createSecretSetter("openrouterApiKey", "openrouter", "openrouter"),
   setCortiClientId: (key: string) => {
@@ -2975,6 +2988,10 @@ export const useSettingsStore = create<SettingsState>()((set, get) => ({
       s.setMicrosoftSpeechApiKey(keys.microsoftSpeechApiKey);
     if (keys.microsoftSpeechEndpoint !== undefined)
       s.setMicrosoftSpeechEndpoint(keys.microsoftSpeechEndpoint);
+    if (keys.microsoftMeetingApiKey !== undefined)
+      s.setMicrosoftMeetingApiKey(keys.microsoftMeetingApiKey);
+    if (keys.microsoftMeetingEndpoint !== undefined)
+      s.setMicrosoftMeetingEndpoint(keys.microsoftMeetingEndpoint);
     if (keys.customTranscriptionApiKey !== undefined)
       s.setCustomTranscriptionApiKey(keys.customTranscriptionApiKey);
     if (keys.cleanupCustomApiKey !== undefined) s.setCleanupCustomApiKey(keys.cleanupCustomApiKey);
@@ -4033,6 +4050,8 @@ export async function initializeSettings(): Promise<void> {
         assemblyai,
         microsoftSpeechKey,
         microsoftSpeechEndpoint,
+        microsoftMeetingKey,
+        microsoftMeetingEndpoint,
       ] = await Promise.all([
         window.electronAPI.getOpenAIKey?.(),
         window.electronAPI.getAnthropicKey?.(),
@@ -4061,6 +4080,8 @@ export async function initializeSettings(): Promise<void> {
         window.electronAPI.getAssemblyAIKey?.(),
         window.electronAPI.getMicrosoftSpeechKey?.(),
         window.electronAPI.getMicrosoftSpeechEndpoint?.(),
+        window.electronAPI.getMicrosoftMeetingKey?.(),
+        window.electronAPI.getMicrosoftMeetingEndpoint?.(),
       ]);
 
       useSettingsStore.setState({
@@ -4097,6 +4118,8 @@ export async function initializeSettings(): Promise<void> {
         assemblyaiApiKey: assemblyai || "",
         microsoftSpeechApiKey: microsoftSpeechKey || "",
         microsoftSpeechEndpoint: microsoftSpeechEndpoint || "",
+        microsoftMeetingApiKey: microsoftMeetingKey || "",
+        microsoftMeetingEndpoint: microsoftMeetingEndpoint || "",
       });
 
       if (localStorage.getItem("_dictationAgentSeeded") === "key-pending") {

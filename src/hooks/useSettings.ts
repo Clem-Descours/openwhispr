@@ -106,6 +106,8 @@ export interface ApiKeySettings {
   assemblyaiApiKey: string;
   microsoftSpeechApiKey: string;
   microsoftSpeechEndpoint: string;
+  microsoftMeetingApiKey: string;
+  microsoftMeetingEndpoint: string;
   customTranscriptionApiKey: string;
   cleanupCustomApiKey: string;
 }
@@ -342,6 +344,8 @@ function useSettingsInternal() {
     assemblyaiApiKey: store.assemblyaiApiKey,
     microsoftSpeechApiKey: store.microsoftSpeechApiKey,
     microsoftSpeechEndpoint: store.microsoftSpeechEndpoint,
+    microsoftMeetingApiKey: store.microsoftMeetingApiKey,
+    microsoftMeetingEndpoint: store.microsoftMeetingEndpoint,
     dictationKey: store.dictationKey,
     meetingKey: store.meetingKey,
     voiceAgentKey: store.voiceAgentKey,

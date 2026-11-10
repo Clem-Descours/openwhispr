@@ -157,7 +157,7 @@ const { TINFOIL_REALTIME_MODEL } = require("./tinfoilRealtimeStreaming");
 const { getTinfoilChatModels } = require("./tinfoilCatalog");
 const { transcribeWithTinfoil } = require("./tinfoilTranscription");
 const { transcribeWithGemini } = require("./geminiTranscription");
-const { transcribeWithMai } = require("./maiTranscription");
+const { transcribeWithMai, resolveMeetingCredentials } = require("./maiTranscription");
 const AudioStorageManager = require("./audioStorage");
 const { SkillLibrary } = require("./skills/skillLibrary");
 const { registerSkillsIpc } = require("./skills/skillsIpc");
@@ -8612,7 +8612,7 @@ class IPCHandlers {
     // Microsoft's socket is per resource; the address is read here, never from the renderer.
     const microsoftMeetingConnectOptions = (options) =>
       options.provider === "microsoft-realtime"
-        ? { endpoint: this.environmentManager.getMicrosoftSpeechEndpoint() }
+        ? { endpoint: resolveMeetingCredentials(this.environmentManager).endpoint }
         : {};
 
     const withMeetingSourceConnectOpts = (connectOpts, source) => ({

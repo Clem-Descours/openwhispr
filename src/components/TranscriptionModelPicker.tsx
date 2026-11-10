@@ -16,6 +16,7 @@ import { useDialogs } from "../hooks/useDialogs";
 import { useModelDownload, type DownloadProgress } from "../hooks/useModelDownload";
 import {
   getTranscriptionProviders,
+  getBatchPickerTranscriptionProviders,
   getMeetingStreamingTranscriptionProviders,
   TranscriptionProviderData,
   WHISPER_MODEL_INFO,
@@ -306,10 +307,14 @@ interface ProviderCredentialField {
     | "deepgramApiKey"
     | "assemblyaiApiKey"
     | "microsoftSpeechApiKey"
-    | "microsoftSpeechEndpoint";
+    | "microsoftSpeechEndpoint"
+    | "microsoftMeetingApiKey"
+    | "microsoftMeetingEndpoint";
   input: "secret" | "text" | "select";
   labelKey?: string;
   placeholder?: string;
+  /** Translated placeholder; wins over `placeholder` and the secret default. */
+  placeholderKey?: string;
   options?: Array<{ value: string; label: string }>;
 }
 
@@ -384,6 +389,27 @@ const PROVIDER_CREDENTIALS: Record<
       },
     ],
   },
+};
+
+// Note recording can use its own Microsoft resource: MAI-Transcribe-2-Streaming
+// isn't served from every region MAI-Transcribe-2 is. Blank uses the pair above.
+const MICROSOFT_MEETING_CREDENTIALS = {
+  ...PROVIDER_CREDENTIALS.microsoft,
+  fields: [
+    ...PROVIDER_CREDENTIALS.microsoft.fields,
+    {
+      key: "microsoftMeetingApiKey",
+      input: "secret",
+      labelKey: "transcription.microsoft.meetingKey",
+      placeholderKey: "transcription.microsoft.meetingOptional",
+    },
+    {
+      key: "microsoftMeetingEndpoint",
+      input: "text",
+      labelKey: "transcription.microsoft.meetingEndpoint",
+      placeholderKey: "transcription.microsoft.meetingOptional",
+    },
+  ] satisfies ProviderCredentialField[],
 };
 
 const TINFOIL_AUDIO_DOCS_URL = "https://docs.tinfoil.sh/models/audio";
@@ -523,6 +549,10 @@ export default function TranscriptionModelPicker({
   const setMicrosoftSpeechApiKey = useSettingsStore((s) => s.setMicrosoftSpeechApiKey);
   const microsoftSpeechEndpoint = useSettingsStore((s) => s.microsoftSpeechEndpoint);
   const setMicrosoftSpeechEndpoint = useSettingsStore((s) => s.setMicrosoftSpeechEndpoint);
+  const microsoftMeetingApiKey = useSettingsStore((s) => s.microsoftMeetingApiKey);
+  const setMicrosoftMeetingApiKey = useSettingsStore((s) => s.setMicrosoftMeetingApiKey);
+  const microsoftMeetingEndpoint = useSettingsStore((s) => s.microsoftMeetingEndpoint);
+  const setMicrosoftMeetingEndpoint = useSettingsStore((s) => s.setMicrosoftMeetingEndpoint);
   const setAssemblyaiApiKey = useSettingsStore((s) => s.setAssemblyaiApiKey);
   const customTranscriptionApiKey = useSettingsStore((s) => s.customTranscriptionApiKey);
   const setCustomTranscriptionApiKey = useSettingsStore((s) => s.setCustomTranscriptionApiKey);
@@ -642,7 +672,7 @@ export default function TranscriptionModelPicker({
   // route at all (transcriptionRoute fails them closed), so they are hidden there.
   const availableCloudProviders = useMemo(() => {
     if (streamingOnly) return getMeetingStreamingTranscriptionProviders();
-    const providers = getTranscriptionProviders();
+    const providers = getBatchPickerTranscriptionProviders();
     if (transcriptionContext !== "upload") return providers;
     return providers.filter((provider) => !STREAMING_ONLY_PROVIDERS.has(provider.id));
     // eslint-disable-next-line react-hooks/exhaustive-deps -- the catalog changes in place; its version is the signal
@@ -1223,7 +1253,9 @@ export default function TranscriptionModelPicker({
   );
 
   const providerCredentials =
-    PROVIDER_CREDENTIALS[displayedCloudProvider] ?? PROVIDER_CREDENTIALS.openai;
+    transcriptionContext === "meeting" && displayedCloudProvider === "microsoft"
+      ? MICROSOFT_MEETING_CREDENTIALS
+      : (PROVIDER_CREDENTIALS[displayedCloudProvider] ?? PROVIDER_CREDENTIALS.openai);
   const keyDraft = useCredentialDraft();
   const credentialValues: Record<ProviderCredentialField["key"], string> = {
     openaiApiKey: keyDraft.value("openaiApiKey", openaiApiKey),
@@ -1240,6 +1272,8 @@ export default function TranscriptionModelPicker({
     assemblyaiApiKey: keyDraft.value("assemblyaiApiKey", assemblyaiApiKey),
     microsoftSpeechApiKey: keyDraft.value("microsoftSpeechApiKey", microsoftSpeechApiKey),
     microsoftSpeechEndpoint: keyDraft.value("microsoftSpeechEndpoint", microsoftSpeechEndpoint),
+    microsoftMeetingApiKey: keyDraft.value("microsoftMeetingApiKey", microsoftMeetingApiKey),
+    microsoftMeetingEndpoint: keyDraft.value("microsoftMeetingEndpoint", microsoftMeetingEndpoint),
   };
   const customKey = keyDraft.value("customTranscriptionApiKey", customTranscriptionApiKey);
   const credentialSetters: Record<ProviderCredentialField["key"], (value: string) => void> = {
@@ -1257,6 +1291,8 @@ export default function TranscriptionModelPicker({
     assemblyaiApiKey: setAssemblyaiApiKey,
     microsoftSpeechApiKey: setMicrosoftSpeechApiKey,
     microsoftSpeechEndpoint: setMicrosoftSpeechEndpoint,
+    microsoftMeetingApiKey: setMicrosoftMeetingApiKey,
+    microsoftMeetingEndpoint: setMicrosoftMeetingEndpoint,
   };
 
   const endpointHold = useFocusHold();
@@ -1267,6 +1303,17 @@ export default function TranscriptionModelPicker({
   const isCustom = displayedCloudProvider === "custom";
   const isCorti = displayedCloudProvider === "corti";
   const isMicrosoft = displayedCloudProvider === "microsoft";
+  // Note recording checks the resource it will actually use (resolveMeetingCredentials).
+  const microsoftUsesMeetingPair =
+    isMicrosoft &&
+    transcriptionContext === "meeting" &&
+    Boolean(credentialValues.microsoftMeetingApiKey.trim());
+  const microsoftCheckKey = microsoftUsesMeetingPair
+    ? credentialValues.microsoftMeetingApiKey
+    : credentialValues.microsoftSpeechApiKey;
+  const microsoftCheckEndpoint =
+    (microsoftUsesMeetingPair && credentialValues.microsoftMeetingEndpoint.trim()) ||
+    credentialValues.microsoftSpeechEndpoint;
   const providerKey = credentialValues[providerCredentials.fields[0].key];
   // `typed` is what is typed into this provider's fields (a speech server's address and
   // model name included); `context` is what is chosen instead.
@@ -1312,12 +1359,12 @@ export default function TranscriptionModelPicker({
             config: {
               scope: "transcription",
               provider: "microsoft",
-              apiKey: providerKey,
-              baseUrl: credentialValues.microsoftSpeechEndpoint,
+              apiKey: microsoftCheckKey,
+              baseUrl: microsoftCheckEndpoint,
               model: panelModel,
             },
-            ready: Boolean(providerKey.trim() && credentialValues.microsoftSpeechEndpoint.trim()),
-            typed: `${providerKey}\n${credentialValues.microsoftSpeechEndpoint}`,
+            ready: Boolean(microsoftCheckKey.trim() && microsoftCheckEndpoint.trim()),
+            typed: `${microsoftCheckKey}\n${microsoftCheckEndpoint}`,
             context: [panelModel],
           }
         : {
@@ -1352,7 +1399,11 @@ export default function TranscriptionModelPicker({
     delayMs,
   });
   // The field that completes the connection carries the status.
-  const checkedCredential = isCorti ? "cortiClientSecret" : providerCredentials.fields[0].key;
+  const checkedCredential = isCorti
+    ? "cortiClientSecret"
+    : microsoftUsesMeetingPair
+      ? "microsoftMeetingApiKey"
+      : providerCredentials.fields[0].key;
   const refused = check.failure?.errorCode === "credentialsRejected";
   // The typed values the check carries, as one string so the effect sees each new set.
   const checkedFields = JSON.stringify(
@@ -1713,9 +1764,11 @@ export default function TranscriptionModelPicker({
                               keyDraft.save();
                             }}
                             placeholder={
-                              field.input === "secret"
-                                ? t("apiKeyInput.placeholder")
-                                : field.placeholder
+                              field.placeholderKey
+                                ? t(field.placeholderKey)
+                                : field.input === "secret"
+                                  ? t("apiKeyInput.placeholder")
+                                  : field.placeholder
                             }
                             autoComplete="off"
                             spellCheck={false}
@@ -1740,6 +1793,8 @@ export default function TranscriptionModelPicker({
                     {displayedCloudProvider === "microsoft" && (
                       <p className="text-xs text-muted-foreground/70">
                         {t("transcription.microsoft.endpointHint")}
+                        {transcriptionContext === "meeting" &&
+                          ` ${t("transcription.microsoft.meetingHint")}`}
                       </p>
                     )}
                     {displayedCloudProvider === "tinfoil" && (

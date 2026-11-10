@@ -22,6 +22,12 @@ const BYOK_KEY_BRIDGES = [
     get: "getMicrosoftSpeechEndpoint",
     save: "saveMicrosoftSpeechEndpoint",
   },
+  { base: "microsoft-meeting", get: "getMicrosoftMeetingKey", save: "saveMicrosoftMeetingKey" },
+  {
+    base: "microsoft-meeting-endpoint",
+    get: "getMicrosoftMeetingEndpoint",
+    save: "saveMicrosoftMeetingEndpoint",
+  },
   {
     base: "note-formatting-custom",
     get: "getNoteFormattingCustomKey",

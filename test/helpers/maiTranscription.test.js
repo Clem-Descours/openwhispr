@@ -236,3 +236,31 @@ test("a Foundry endpoint transcribes on its Speech host and streams on its Found
   assert.equal(buildRealtimeUrl("northeurope"), null);
   assert.equal(buildRealtimeUrl("https://evil.example.com"), null);
 });
+
+test("note recording uses its own key and endpoint as a pair, falling back to the main ones", () => {
+  const { resolveMeetingCredentials } = require("../../src/helpers/maiTranscription.js");
+  const env = (values) => ({
+    getMicrosoftSpeechKey: () => values.key ?? "",
+    getMicrosoftSpeechEndpoint: () => values.endpoint ?? "",
+    getMicrosoftMeetingKey: () => values.meetingKey ?? "",
+    getMicrosoftMeetingEndpoint: () => values.meetingEndpoint ?? "",
+  });
+  const main = { key: "k-main", endpoint: "https://ne.cognitiveservices.azure.com" };
+  assert.deepEqual(resolveMeetingCredentials(env(main)), {
+    apiKey: "k-main",
+    endpoint: "https://ne.cognitiveservices.azure.com",
+  });
+  assert.deepEqual(
+    resolveMeetingCredentials(
+      env({ ...main, meetingKey: "k-sw", meetingEndpoint: "https://sw.services.ai.azure.com" })
+    ),
+    { apiKey: "k-sw", endpoint: "https://sw.services.ai.azure.com" }
+  );
+  // A meeting endpoint never borrows the main key.
+  assert.deepEqual(
+    resolveMeetingCredentials(
+      env({ ...main, meetingEndpoint: "https://sw.services.ai.azure.com" })
+    ),
+    { apiKey: "k-main", endpoint: "https://ne.cognitiveservices.azure.com" }
+  );
+});

@@ -2688,6 +2688,10 @@ declare global {
       saveMicrosoftSpeechKey?: (key: string) => Promise<void>;
       getMicrosoftSpeechEndpoint?: () => Promise<string | null>;
       saveMicrosoftSpeechEndpoint?: (endpoint: string) => Promise<void>;
+      getMicrosoftMeetingKey?: () => Promise<string | null>;
+      saveMicrosoftMeetingKey?: (key: string) => Promise<void>;
+      getMicrosoftMeetingEndpoint?: () => Promise<string | null>;
+      saveMicrosoftMeetingEndpoint?: (endpoint: string) => Promise<void>;
       proxyMicrosoftTranscription?: (data: {
         audioBuffer: ArrayBuffer;
         model?: string;

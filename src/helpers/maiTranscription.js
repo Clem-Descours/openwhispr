@@ -314,7 +314,24 @@ function maiHttpError(response, body, model) {
   });
 }
 
+// Note recording may use its own resource. Key and endpoint are taken as a pair:
+// a meeting key with no meeting endpoint keeps the main endpoint, but a meeting
+// endpoint never borrows the main key.
+function resolveMeetingCredentials(environmentManager) {
+  const meetingKey = (environmentManager.getMicrosoftMeetingKey?.() || "").trim();
+  const mainEndpoint = environmentManager.getMicrosoftSpeechEndpoint?.() || "";
+  if (meetingKey) {
+    const meetingEndpoint = (environmentManager.getMicrosoftMeetingEndpoint?.() || "").trim();
+    return { apiKey: meetingKey, endpoint: meetingEndpoint || mainEndpoint };
+  }
+  return {
+    apiKey: environmentManager.getMicrosoftSpeechKey?.() || "",
+    endpoint: mainEndpoint,
+  };
+}
+
 module.exports = {
+  resolveMeetingCredentials,
   MAI_API_VERSION,
   MAI_DEFAULT_MODEL,
   normalizeSpeechEndpoint,
