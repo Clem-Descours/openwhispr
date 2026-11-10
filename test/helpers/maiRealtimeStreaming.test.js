@@ -90,3 +90,24 @@ test("the live line is the finalized deltas plus the current intermediate", asyn
   assert.deepEqual(partials, ["Hello", "Hello wor", "Hello world"]);
   streaming.cleanup();
 });
+
+test("a failed turn is shown to the user once, with what to check", async () => {
+  const { streaming, socket } = await connectWith("https://acme.services.ai.azure.com");
+  const errors = [];
+  streaming.onError = (error) => errors.push(error.message);
+  const fail = (item) =>
+    socket.emit(
+      "message",
+      JSON.stringify({
+        type: "conversation.item.input_audio_transcription.failed",
+        item_id: item,
+        error: { code: "model_not_found", message: "nope" },
+      })
+    );
+  fail("item_1");
+  fail("item_2");
+  assert.equal(errors.length, 1);
+  assert.match(errors[0], /model_not_found/);
+  assert.match(errors[0], /MAI-Transcribe-2-Streaming/);
+  streaming.cleanup();
+});
