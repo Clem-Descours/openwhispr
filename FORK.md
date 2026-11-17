@@ -19,16 +19,20 @@ The values can also be set in the `.env` file: `MICROSOFT_SPEECH_KEY` and
 
 ## Live note recording
 
-Note recording streams, so it uses `MAI-Transcribe-2-Streaming` instead of the batch model:
+Note recording streams, so it uses `MAI-Transcribe-2-Streaming` instead of the batch model. It goes
+through the Azure Speech SDK (`microsoft-cognitiveservices-speech-sdk`, `maiSpeechStreaming.js`),
+which needs no Foundry model deployment and so no deployment quota. The Realtime API route
+(`/mai/v1/realtime`) needs a deployment, which a new subscription often can't create (quota 0).
 
-1. In the Foundry portal, deploy **MAI-Transcribe-2-Streaming** (Build → Models → Deploy a base
-   model) and keep the default deployment name.
-2. The endpoint in Settings must name the resource (`https://<resource>.services.ai.azure.com` or
-   `https://<resource>.cognitiveservices.azure.com`). A bare region works for dictation only.
-3. Settings → Note Recording → Microsoft AI → `MAI-Transcribe-2-Streaming`.
+1. The resource must be in a region that serves the streaming model: `swedencentral`, `eastus2`,
+   `centralus` or `southeastasia`. MAI-Transcribe-2 (dictation) is served elsewhere
+   (`northeurope`, `westeurope`, …), so no European region has both.
+2. Settings → Note Recording → Microsoft AI: fill "Note recording key" and "Note recording
+   endpoint" with that resource (endpoint URL or region name). Blank uses the main pair.
+3. Pick `MAI-Transcribe-2-Streaming`.
 
-The model has no server-side speech detection, so the app commits each turn itself (the same loop
-as Tinfoil, `maiRealtimeStreaming.js`).
+The app language is sent as a locale (`fr` → `fr-FR`); "auto" detects among the app's languages,
+since the SDK otherwise assumes `en-US`.
 
 ## What works
 
@@ -39,7 +43,7 @@ as Tinfoil, `maiRealtimeStreaming.js`).
 | Language                   | Sent as a bare locale (`fr`); auto-detect when "auto". A locale MAI rejects is retried once with auto-detect. |
 | Audio file upload          | Yes, with native speaker diarization and segment timestamps.                                                  |
 | Retry from history         | Yes.                                                                                                          |
-| Live meeting transcription | Yes, with `MAI-Transcribe-2-Streaming` (preview) over the Realtime API. See below.                            |
+| Live meeting transcription | Yes, with `MAI-Transcribe-2-Streaming` (preview) through the Speech SDK. See below.                           |
 | Connection check           | Yes (Settings and onboarding): an empty request to the endpoint, so nothing is transcribed or billed.         |
 
 ## Design notes

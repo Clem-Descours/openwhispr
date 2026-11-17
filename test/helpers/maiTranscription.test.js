@@ -223,18 +223,12 @@ test("transcribe: missing key or invalid endpoint fail before any request", asyn
   assert.equal(calls.length, 0);
 });
 
-test("a Foundry endpoint transcribes on its Speech host and streams on its Foundry host", () => {
-  const { buildTranscribeUrl, buildRealtimeUrl } = require("../../src/helpers/maiTranscription.js");
+test("a Foundry endpoint transcribes on its Speech host", () => {
+  const { buildTranscribeUrl } = require("../../src/helpers/maiTranscription.js");
   assert.match(
     buildTranscribeUrl("https://acme.services.ai.azure.com"),
     /^https:\/\/acme\.cognitiveservices\.azure\.com\/speechtotext\//
   );
-  assert.equal(
-    buildRealtimeUrl("https://acme.cognitiveservices.azure.com"),
-    "wss://acme.services.ai.azure.com/mai/v1/realtime?intent=transcription"
-  );
-  assert.equal(buildRealtimeUrl("northeurope"), null);
-  assert.equal(buildRealtimeUrl("https://evil.example.com"), null);
 });
 
 test("note recording uses its own key and endpoint as a pair, falling back to the main ones", () => {

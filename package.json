@@ -183,6 +183,7 @@
     "i18next": "^26.3.6",
     "js-yaml": "^4.3.2",
     "kysely": "^0.28.17",
+    "microsoft-cognitiveservices-speech-sdk": "1.53.0",
     "object-assign": "^4.1.1",
     "onnxruntime-node": "^1.21.0",
     "opencc-js": "^1.4.1",

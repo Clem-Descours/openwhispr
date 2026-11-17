@@ -970,9 +970,9 @@
       "meetingKey": "Note recording key",
       "meetingEndpoint": "Note recording endpoint",
       "meetingOptional": "Optional",
-      "meetingHint": "For note recording only. Leave these blank to use the key above; fill them in when MAI-Transcribe-2-Streaming is deployed on another resource (for example in swedencentral).",
+      "meetingHint": "For note recording only. Leave these blank to use the key above; fill them in with a resource in a region that serves MAI-Transcribe-2-Streaming (swedencentral, eastus2, centralus, southeastasia). No model deployment is needed.",
       "endpoint": "Endpoint or region",
-      "endpointHint": "Paste the Endpoint from your Azure Speech or Foundry resource (Keys and Endpoint), or a region that serves MAI-Transcribe such as northeurope or eastus. Audio is re-encoded to WAV before upload. Live note recording needs the resource endpoint, not a region."
+      "endpointHint": "Paste the Endpoint from your Azure Speech or Foundry resource (Keys and Endpoint), or a region that serves MAI-Transcribe such as northeurope or eastus. Audio is re-encoded to WAV before upload."
     }
   },
   "hooks": {

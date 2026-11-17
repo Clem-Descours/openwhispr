@@ -80,16 +80,6 @@ function buildTranscribeUrl(endpoint) {
   return `${origin}/speechtotext/transcriptions:transcribe?api-version=${MAI_API_VERSION}`;
 }
 
-// MAI-Transcribe-2-Streaming is served by the Foundry resource itself, so a bare
-// region (which names no resource) can't reach it.
-// https://learn.microsoft.com/azure/ai-services/speech-service/mai-transcribe-2-streaming-realtime
-function buildRealtimeUrl(endpoint) {
-  const origin = normalizeSpeechEndpoint(endpoint);
-  const resource = origin && resourceNameOf(origin);
-  if (!resource) return null;
-  return `wss://${resource}${FOUNDRY_HOST_SUFFIX}/mai/v1/realtime?intent=transcription`;
-}
-
 function sanitizePhrases(phrases) {
   if (!Array.isArray(phrases)) return [];
   const seen = new Set();
@@ -336,7 +326,6 @@ module.exports = {
   MAI_DEFAULT_MODEL,
   normalizeSpeechEndpoint,
   buildTranscribeUrl,
-  buildRealtimeUrl,
   buildDefinition,
   sanitizePhrases,
   sniffAudioContainer,

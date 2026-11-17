@@ -970,9 +970,9 @@
       "meetingKey": "Schlüssel für Notizaufnahmen",
       "meetingEndpoint": "Endpunkt für Notizaufnahmen",
       "meetingOptional": "Optional",
-      "meetingHint": "Nur für Notizaufnahmen. Leer lassen, um den Schlüssel oben zu verwenden; ausfüllen, wenn MAI-Transcribe-2-Streaming auf einer anderen Ressource bereitgestellt ist (z. B. in swedencentral).",
+      "meetingHint": "Nur für Notizaufnahmen. Leer lassen, um den Schlüssel oben zu verwenden; mit einer Ressource in einer Region ausfüllen, die MAI-Transcribe-2-Streaming anbietet (swedencentral, eastus2, centralus, southeastasia). Keine Modellbereitstellung nötig.",
       "endpoint": "Endpunkt oder Region",
-      "endpointHint": "Fügen Sie den Endpunkt Ihrer Azure-Speech- oder Foundry-Ressource ein (Schlüssel und Endpunkt) oder eine Region mit MAI-Transcribe wie northeurope oder eastus. Audio wird vor dem Hochladen in WAV umgewandelt. Live-Notizaufnahmen benötigen den Endpunkt der Ressource, keine Region."
+      "endpointHint": "Fügen Sie den Endpunkt Ihrer Azure-Speech- oder Foundry-Ressource ein (Schlüssel und Endpunkt) oder eine Region mit MAI-Transcribe wie northeurope oder eastus. Audio wird vor dem Hochladen in WAV umgewandelt."
     }
   },
   "hooks": {
