@@ -965,6 +965,14 @@
     "tinfoil": {
       "transportNote": "Tinfoil trasmette con Voxtral Mini 4B ed elabora i batch con Voxtral Small 24B.",
       "docsLink": "Leggi la documentazione"
+    },
+    "microsoft": {
+      "meetingKey": "Chiave per le note delle riunioni",
+      "meetingEndpoint": "Endpoint per le note delle riunioni",
+      "meetingOptional": "Facoltativo",
+      "meetingHint": "Solo per le note delle riunioni. Lascia vuoto per usare la chiave sopra; compila con una risorsa in una regione che offre MAI-Transcribe-2-Streaming (swedencentral, eastus2, centralus, southeastasia). Non serve distribuire alcun modello.",
+      "endpoint": "Endpoint o regione",
+      "endpointHint": "Incolla l'endpoint della tua risorsa Azure Speech o Foundry (Chiavi ed endpoint), oppure una regione che offre MAI-Transcribe come northeurope o eastus. L'audio viene ricodificato in WAV prima del caricamento."
     }
   },
   "hooks": {
@@ -2993,7 +3001,10 @@
         "assemblyai_universal_3_5_pro": "Massima precisione in tempo reale, 18 lingue",
         "assemblyai_universal_3_6_pro": "Massima precisione in tempo reale, 32 lingue",
         "mistral_voxtral_mini_transcribe_3_0": "Trascrizione veloce in oltre 50 lingue (anteprima)",
-        "mistral_voxtral_small_transcribe_3_0": "Il Voxtral più preciso, oltre 50 lingue (anteprima)"
+        "mistral_voxtral_small_transcribe_3_0": "Il Voxtral più preciso, oltre 50 lingue (anteprima)",
+        "microsoft_mai_transcribe_2": "Riconoscimento vocale Microsoft AI, 60 lingue (anteprima)",
+        "microsoft_mai_transcribe_2_streaming": "Trascrizione in tempo reale per le note delle riunioni (anteprima)",
+        "microsoft_mai_transcribe_1_5": "Generazione precedente di MAI-Transcribe, 43 lingue"
       },
       "cloud": {
         "openai_gpt_5_2": "Modello di ragionamento potente",

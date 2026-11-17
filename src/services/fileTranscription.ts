@@ -68,6 +68,8 @@ export interface TranscriptionApiKeys {
   tinfoilApiKey: string;
   deepgramApiKey: string;
   assemblyaiApiKey: string;
+  microsoftSpeechApiKey?: string;
+  microsoftSpeechEndpoint?: string;
   customTranscriptionApiKey?: string;
 }
 
@@ -89,6 +91,9 @@ export function getTranscriptionApiKey(provider: string, keys: TranscriptionApiK
       return keys.deepgramApiKey;
     case "assemblyai":
       return keys.assemblyaiApiKey;
+    case "microsoft":
+      // Unusable without the resource endpoint it belongs to.
+      return keys.microsoftSpeechEndpoint?.trim() ? keys.microsoftSpeechApiKey || "" : "";
     case "custom":
       return keys.customTranscriptionApiKey || "";
     default:

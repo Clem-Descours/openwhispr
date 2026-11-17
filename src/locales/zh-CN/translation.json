@@ -965,6 +965,14 @@
     "tinfoil": {
       "transportNote": "Tinfoil 流式转录使用 Voxtral Mini 4B，批量转录使用 Voxtral Small 24B。",
       "docsLink": "查看文档"
+    },
+    "microsoft": {
+      "meetingKey": "Note recording key",
+      "meetingEndpoint": "Note recording endpoint",
+      "meetingOptional": "Optional",
+      "meetingHint": "For note recording only. Leave these blank to use the key above; fill them in with a resource in a region that serves MAI-Transcribe-2-Streaming (swedencentral, eastus2, centralus, southeastasia). No model deployment is needed.",
+      "endpoint": "Endpoint or region",
+      "endpointHint": "Paste the Endpoint from your Azure Speech or Foundry resource (Keys and Endpoint), or a region that serves MAI-Transcribe such as northeurope or eastus. Audio is re-encoded to WAV before upload."
     }
   },
   "hooks": {
@@ -2993,7 +3001,10 @@
         "assemblyai_universal_3_5_pro": "最高精度实时转录，支持 18 种语言",
         "assemblyai_universal_3_6_pro": "最高精度实时转录，支持 32 种语言",
         "mistral_voxtral_mini_transcribe_3_0": "支持 50 多种语言的快速转录（预览版）",
-        "mistral_voxtral_small_transcribe_3_0": "最准确的 Voxtral，支持 50 多种语言（预览版）"
+        "mistral_voxtral_small_transcribe_3_0": "最准确的 Voxtral，支持 50 多种语言（预览版）",
+        "microsoft_mai_transcribe_2": "Microsoft AI speech-to-text, 60 languages (preview)",
+        "microsoft_mai_transcribe_2_streaming": "Live transcription for note recording (preview)",
+        "microsoft_mai_transcribe_1_5": "Previous MAI-Transcribe generation, 43 languages"
       },
       "cloud": {
         "openai_gpt_5_2": "强大的推理模型",

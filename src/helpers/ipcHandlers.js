@@ -75,7 +75,10 @@ const transcriptionProviderBaseUrls = () =>
 // Classified errors show the provider's display name; routes only carry its id.
 const transcriptionProviderName = (id) =>
   require("../models/modelRegistryData.json").transcriptionProviders.find((p) => p.id === id)
-    ?.name || id;
+    ?.name ||
+  require("../models/forkProviders.js").FORK_TRANSCRIPTION_PROVIDERS.find((p) => p.id === id)
+    ?.name ||
+  id;
 // ipcMain.handle keeps only the message when a promise rejects, dropping custom
 // props — proxy handlers return the classified fields so the renderer can
 // rebuild the error.
@@ -154,6 +157,7 @@ const { TINFOIL_REALTIME_MODEL } = require("./tinfoilRealtimeStreaming");
 const { getTinfoilChatModels } = require("./tinfoilCatalog");
 const { transcribeWithTinfoil } = require("./tinfoilTranscription");
 const { transcribeWithGemini } = require("./geminiTranscription");
+const { transcribeWithMai, resolveMeetingCredentials } = require("./maiTranscription");
 const AudioStorageManager = require("./audioStorage");
 const { SkillLibrary } = require("./skills/skillLibrary");
 const { registerSkillsIpc } = require("./skills/skillsIpc");
@@ -5609,6 +5613,25 @@ class IPCHandlers {
       })
     );
 
+    // MAI-Transcribe (Microsoft AI) runs on Azure Speech's Fast Transcription
+    // API: multipart with a JSON `definition`, a subscription-key header and a
+    // per-resource endpoint, and WAV/MP3/FLAC only, so it is proxied through main.
+    ipcMain.handle(
+      "proxy-microsoft-transcription",
+      serializeIpcError(async (event, { audioBuffer, model, language, keyterms }) => {
+        const { convertBufferToWav } = require("./ffmpegUtils");
+        return await transcribeWithMai({
+          audioBuffer: Buffer.from(audioBuffer),
+          apiKey: this.environmentManager.getMicrosoftSpeechKey(),
+          endpoint: this.environmentManager.getMicrosoftSpeechEndpoint(),
+          model,
+          language,
+          phrases: keyterms,
+          convertToWav: (buffer) => convertBufferToWav(buffer),
+        });
+      })
+    );
+
     ipcMain.handle("get-custom-transcription-key", async () => {
       return this.environmentManager.getCustomTranscriptionKey();
     });
@@ -7954,6 +7977,17 @@ class IPCHandlers {
             apiKey: this.environmentManager.getGeminiKey(),
           });
           result = { text, source: "gemini", model: route.model };
+        } else if (route.transport === "proxied" && route.provider === "microsoft") {
+          // Stored audio is WebM; transcribeWithMai re-encodes it to WAV.
+          const { text } = await transcribeWithMai({
+            audioBuffer: buffer,
+            apiKey: this.environmentManager.getMicrosoftSpeechKey(),
+            endpoint: this.environmentManager.getMicrosoftSpeechEndpoint(),
+            model: route.model,
+            language: route.language,
+            convertToWav: (wavInput) => convertBufferToWav(wavInput),
+          });
+          result = { text, source: "microsoft", model: route.model };
         } else {
           // mistral/xai have no OpenAI-compatible endpoint — main talks to them
           // directly; everything else consumes the route endpoint as-is.
@@ -8575,6 +8609,12 @@ class IPCHandlers {
 
     // Labels the socket for field logs and, for system, swaps in the more
     // sensitive threshold (see MEETING_SYSTEM_VAD_THRESHOLD).
+    // Microsoft's socket is per resource; the address is read here, never from the renderer.
+    const microsoftMeetingConnectOptions = (options) =>
+      options.provider === "microsoft-realtime"
+        ? { endpoint: resolveMeetingCredentials(this.environmentManager).endpoint }
+        : {};
+
     const withMeetingSourceConnectOpts = (connectOpts, source) => ({
       ...connectOpts,
       streamLabel: source,
@@ -8642,6 +8682,7 @@ class IPCHandlers {
             tenant: options.tenant,
             keyterms: options.keyterms,
             sampleRate: MEETING_STREAM_SAMPLE_RATE,
+            ...microsoftMeetingConnectOptions(options),
             ...(await enterpriseMeetingConnectOptions(tokenEvent, options)),
           };
 
@@ -8943,6 +8984,7 @@ class IPCHandlers {
         tenant: options.tenant,
         keyterms: options.keyterms,
         sampleRate: MEETING_STREAM_SAMPLE_RATE,
+        ...microsoftMeetingConnectOptions(options),
         ...(await enterpriseMeetingConnectOptions(event, options)),
       };
       const { mode: systemAudioMode } = await getMeetingSystemAudioPlan();
@@ -12138,6 +12180,42 @@ class IPCHandlers {
                 apiKey: apiKey || this.environmentManager.getGeminiKey(),
               });
               return { success: true, text };
+            }
+
+            if (route.transport === "proxied" && route.provider === "microsoft") {
+              // No language hint, as for the other providers: an uploaded file
+              // is often not in the dictation language. MAI diarizes natively.
+              const { convertBufferToWav } = require("./ffmpegUtils");
+              const mai = await transcribeWithMai({
+                audioBuffer: fs.readFileSync(realByok),
+                apiKey: apiKey || this.environmentManager.getMicrosoftSpeechKey(),
+                endpoint: this.environmentManager.getMicrosoftSpeechEndpoint(),
+                model: route.model,
+                diarize: !!diarize,
+                timestamps: !!timestamps,
+                signal,
+                convertToWav: (buffer) => convertBufferToWav(buffer, { signal }),
+              });
+              if (diarize && mai.segments.some((s) => s.speaker)) {
+                const segments = mai.segments.map((s) => ({
+                  speaker: s.speaker || "Speaker ?",
+                  text: s.text,
+                  start: s.start,
+                  end: s.end,
+                }));
+                const formatted = segments
+                  .map(
+                    (s) =>
+                      `[${s.speaker}] ${formatDiarTime(s.start)} - ${formatDiarTime(s.end)}\n${s.text}`
+                  )
+                  .join("\n\n");
+                return { success: true, text: formatted, diarized: true, segments };
+              }
+              const segments =
+                timestamps && mai.segments.length
+                  ? mai.segments.map(({ text, start, end }) => ({ text, start, end }))
+                  : null;
+              return { success: true, text: mai.text, ...(segments ? { segments } : {}) };
             }
 
             if (!apiKey && route.provider !== "custom") {

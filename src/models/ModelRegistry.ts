@@ -8,6 +8,7 @@ import { isSelectableTinfoilModel } from "../config/retiredCloudModelPolicy.js";
 import { getCloudModelProviders, setTinfoilModelOverlay } from "./cloudModelCatalog";
 import { pickDefaultModelId } from "./providerDefaultModel";
 import { filterMeetingStreamingProviders } from "../helpers/meetingTranscriptionRouting";
+import { MEETING_ONLY_MODEL_IDS } from "./forkProviders";
 import type { InferenceMode } from "../types/electron";
 
 export interface ModelDefinition {
@@ -451,6 +452,15 @@ export function resolveInferenceProvider(
 
 export function getTranscriptionProviders(): TranscriptionProviderData[] {
   return modelRegistry.getTranscriptionProviders();
+}
+
+// The providers a dictation, upload or onboarding picker lists.
+export function getBatchPickerTranscriptionProviders(): TranscriptionProviderData[] {
+  return getTranscriptionProviders().map((provider) =>
+    provider.models.some((model) => MEETING_ONLY_MODEL_IDS.has(model.id))
+      ? { ...provider, models: provider.models.filter((m) => !MEETING_ONLY_MODEL_IDS.has(m.id)) }
+      : provider
+  );
 }
 
 export function getStreamingTranscriptionProviders(): TranscriptionProviderData[] {

@@ -620,6 +620,19 @@ const PROXY_TRANSCRIPTION_PROVIDERS = {
     },
     echoPrompt: ({ keyterms }) => keyterms.join(", "),
   },
+  microsoft: {
+    displayName: "Microsoft AI",
+    ipc: () => window.electronAPI?.proxyMicrosoftTranscription,
+    // MAI's phraseList biases recognition the way keyterms do elsewhere; main
+    // resolves the key and the resource endpoint, never the renderer.
+    buildPayload: ({ audioBuffer, model, language, keyterms }) => {
+      const payload = { audioBuffer, model, language: language !== "auto" ? language : undefined };
+      // Named keyterms so the dictionary-echo guard treats it like xAI's.
+      if (keyterms.length > 0) payload.keyterms = keyterms;
+      return payload;
+    },
+    echoPrompt: ({ keyterms }) => keyterms.join(", "),
+  },
   corti: {
     displayName: "Corti",
     ipc: () => window.electronAPI?.proxyCortiTranscription,
@@ -2910,6 +2923,20 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
       if (!isValidApiKey(apiKey, "groq")) {
         const err = new Error(
           "Groq API key not found. Please set your API key in the Control Panel."
+        );
+        err.code = "API_KEY_MISSING";
+        throw err;
+      }
+    } else if (provider === "microsoft") {
+      // The key and its resource endpoint are both required; main sends the
+      // request, so only presence is checked here.
+      apiKey = s.microsoftSpeechApiKey;
+      let endpoint = s.microsoftSpeechEndpoint;
+      if (!apiKey?.trim()) apiKey = await window.electronAPI.getMicrosoftSpeechKey?.();
+      if (!endpoint?.trim()) endpoint = await window.electronAPI.getMicrosoftSpeechEndpoint?.();
+      if (!apiKey?.trim() || !endpoint?.trim()) {
+        const err = new Error(
+          "Microsoft Speech key or endpoint not found. Please set both in the Control Panel."
         );
         err.code = "API_KEY_MISSING";
         throw err;

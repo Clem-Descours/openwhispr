@@ -965,6 +965,14 @@
     "tinfoil": {
       "transportNote": "Tinfoil использует Voxtral Mini 4B для потоковой обработки и Voxtral Small 24B для пакетной.",
       "docsLink": "Открыть документацию"
+    },
+    "microsoft": {
+      "meetingKey": "Note recording key",
+      "meetingEndpoint": "Note recording endpoint",
+      "meetingOptional": "Optional",
+      "meetingHint": "For note recording only. Leave these blank to use the key above; fill them in with a resource in a region that serves MAI-Transcribe-2-Streaming (swedencentral, eastus2, centralus, southeastasia). No model deployment is needed.",
+      "endpoint": "Endpoint or region",
+      "endpointHint": "Paste the Endpoint from your Azure Speech or Foundry resource (Keys and Endpoint), or a region that serves MAI-Transcribe such as northeurope or eastus. Audio is re-encoded to WAV before upload."
     }
   },
   "hooks": {
@@ -3049,7 +3057,10 @@
         "assemblyai_universal_3_5_pro": "Максимальная точность в реальном времени, 18 языков",
         "assemblyai_universal_3_6_pro": "Максимальная точность в реальном времени, 32 языка",
         "mistral_voxtral_mini_transcribe_3_0": "Быстрая транскрипция на 50+ языках (предварительная версия)",
-        "mistral_voxtral_small_transcribe_3_0": "Самый точный Voxtral, 50+ языков (предварительная версия)"
+        "mistral_voxtral_small_transcribe_3_0": "Самый точный Voxtral, 50+ языков (предварительная версия)",
+        "microsoft_mai_transcribe_2": "Microsoft AI speech-to-text, 60 languages (preview)",
+        "microsoft_mai_transcribe_2_streaming": "Live transcription for note recording (preview)",
+        "microsoft_mai_transcribe_1_5": "Previous MAI-Transcribe generation, 43 languages"
       },
       "cloud": {
         "openai_gpt_5_2": "Сильная модель рассуждения",

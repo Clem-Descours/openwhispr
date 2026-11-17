@@ -965,6 +965,14 @@
     "tinfoil": {
       "transportNote": "Tinfoil streamt mit Voxtral Mini 4B und verarbeitet Batches mit Voxtral Small 24B.",
       "docsLink": "Zur Dokumentation"
+    },
+    "microsoft": {
+      "meetingKey": "Schlüssel für Notizaufnahmen",
+      "meetingEndpoint": "Endpunkt für Notizaufnahmen",
+      "meetingOptional": "Optional",
+      "meetingHint": "Nur für Notizaufnahmen. Leer lassen, um den Schlüssel oben zu verwenden; mit einer Ressource in einer Region ausfüllen, die MAI-Transcribe-2-Streaming anbietet (swedencentral, eastus2, centralus, southeastasia). Keine Modellbereitstellung nötig.",
+      "endpoint": "Endpunkt oder Region",
+      "endpointHint": "Fügen Sie den Endpunkt Ihrer Azure-Speech- oder Foundry-Ressource ein (Schlüssel und Endpunkt) oder eine Region mit MAI-Transcribe wie northeurope oder eastus. Audio wird vor dem Hochladen in WAV umgewandelt."
     }
   },
   "hooks": {
@@ -3091,7 +3099,10 @@
         "assemblyai_universal_3_5_pro": "Höchste Genauigkeit in Echtzeit, 18 Sprachen",
         "assemblyai_universal_3_6_pro": "Höchste Genauigkeit in Echtzeit, 32 Sprachen",
         "mistral_voxtral_mini_transcribe_3_0": "Schnelle Transkription in über 50 Sprachen (Vorschau)",
-        "mistral_voxtral_small_transcribe_3_0": "Genauestes Voxtral, über 50 Sprachen (Vorschau)"
+        "mistral_voxtral_small_transcribe_3_0": "Genauestes Voxtral, über 50 Sprachen (Vorschau)",
+        "microsoft_mai_transcribe_2": "Spracherkennung von Microsoft AI, 60 Sprachen (Vorschau)",
+        "microsoft_mai_transcribe_2_streaming": "Live-Transkription für Notizaufnahmen (Vorschau)",
+        "microsoft_mai_transcribe_1_5": "Vorherige MAI-Transcribe-Generation, 43 Sprachen"
       },
       "cloud": {
         "openai_gpt_5_2": "Starkes Reasoning-Modell",

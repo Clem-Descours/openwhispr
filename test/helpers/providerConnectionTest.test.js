@@ -1039,3 +1039,54 @@ test("a model list whose body never arrives is no verdict, not a missing model",
   );
   assert.equal(unreadable.errorCode, "modelNotFound", "a list that can't be read offers nothing");
 });
+
+test("Microsoft is checked at the user's own Speech endpoint, never a foreign host", async () => {
+  const request = resolveProviderRequest({
+    provider: "microsoft",
+    apiKey: "ms-key",
+    baseUrl: "northeurope",
+  });
+  assert.match(
+    request.endpoint,
+    /^https:\/\/northeurope\.api\.cognitive\.microsoft\.com\/speechtotext\/transcriptions:transcribe\?/
+  );
+  assert.equal(request.headers["Ocp-Apim-Subscription-Key"], "ms-key");
+  assert.equal(request.headers.Authorization, undefined);
+  assert.equal(request.redirect, "error");
+
+  const missing = await testProviderConnection({ provider: "microsoft", apiKey: "ms-key" });
+  assert.equal(missing.errorCode, "endpointRequired");
+  let called = false;
+  const foreign = await testProviderConnection(
+    { provider: "microsoft", apiKey: "ms-key", baseUrl: "https://evil.example.com" },
+    async () => {
+      called = true;
+      return new Response(null, { status: 400 });
+    }
+  );
+  assert.equal(foreign.errorCode, "invalidUrl");
+  assert.equal(called, false);
+});
+
+test("Microsoft: an empty request refused as malformed proves the key, a 401 refuses it", async () => {
+  const config = {
+    provider: "microsoft",
+    apiKey: "ms-key",
+    baseUrl: "https://res.cognitiveservices.azure.com",
+  };
+  const answer = (status) => async (url, init) => {
+    assert.equal(init.method, "POST");
+    assert.equal(url.startsWith("https://res.cognitiveservices.azure.com/"), true);
+    return new Response(null, { status });
+  };
+  assert.deepEqual(await testProviderConnection(config, answer(400)), { success: true });
+  assert.equal(
+    (await testProviderConnection(config, answer(401))).errorCode,
+    "credentialsRejected"
+  );
+  assert.equal(
+    (await testProviderConnection(config, answer(404))).errorCode,
+    "transcriptionEndpointNotFound"
+  );
+  assert.equal((await testProviderConnection(config, answer(503))).unverified, true);
+});

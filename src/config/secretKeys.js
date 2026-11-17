@@ -80,6 +80,41 @@ const BYOK_API_KEYS = [
     save: "saveAssemblyAIKey",
     storeKey: "assemblyaiApiKey",
   },
+  // Microsoft AI (MAI-Transcribe) through Azure Speech: a resource key plus the
+  // resource endpoint (or region) it belongs to. The endpoint is not secret but
+  // lives beside the key so the main process can resolve both without the
+  // renderer passing a URL the key would be sent to.
+  {
+    base: "microsoft",
+    env: "MICROSOFT_SPEECH_KEY",
+    get: "getMicrosoftSpeechKey",
+    save: "saveMicrosoftSpeechKey",
+    storeKey: "microsoftSpeechApiKey",
+  },
+  {
+    base: "microsoft-endpoint",
+    env: "MICROSOFT_SPEECH_ENDPOINT",
+    get: "getMicrosoftSpeechEndpoint",
+    save: "saveMicrosoftSpeechEndpoint",
+    storeKey: "microsoftSpeechEndpoint",
+  },
+  // Optional second resource for note recording: MAI-Transcribe-2-Streaming and
+  // MAI-Transcribe-2 aren't served from the same regions, so meetings may need
+  // their own resource. Blank falls back to the pair above.
+  {
+    base: "microsoft-meeting",
+    env: "MICROSOFT_MEETING_KEY",
+    get: "getMicrosoftMeetingKey",
+    save: "saveMicrosoftMeetingKey",
+    storeKey: "microsoftMeetingApiKey",
+  },
+  {
+    base: "microsoft-meeting-endpoint",
+    env: "MICROSOFT_MEETING_ENDPOINT",
+    get: "getMicrosoftMeetingEndpoint",
+    save: "saveMicrosoftMeetingEndpoint",
+    storeKey: "microsoftMeetingEndpoint",
+  },
   // Per-scope Custom-endpoint keys. Dictation cleanup's counterpart predates
   // this manifest and keeps its bespoke accessors (CUSTOM_CLEANUP_API_KEY).
   {

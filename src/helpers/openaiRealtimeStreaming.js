@@ -115,6 +115,11 @@ class OpenAIRealtimeStreaming {
     this.coldStartBufferSize = 0;
   }
 
+  // Subclasses whose server has no speech detection (manual commits) return null.
+  turnDetection() {
+    return turnDetectionFor(this.model, this.vadThreshold);
+  }
+
   getFullTranscript() {
     return this.completedSegments.join(" ");
   }
@@ -293,7 +298,7 @@ class OpenAIRealtimeStreaming {
                         input_audio_transcription: this.language
                           ? { model: this.model, language: this.language }
                           : { model: this.model },
-                        turn_detection: turnDetectionFor(this.model, this.vadThreshold),
+                        turn_detection: this.turnDetection(),
                       },
                     }
                   : {
@@ -306,7 +311,7 @@ class OpenAIRealtimeStreaming {
                             transcription: this.language
                               ? { model: this.model, language: this.language }
                               : { model: this.model },
-                            turn_detection: turnDetectionFor(this.model, this.vadThreshold),
+                            turn_detection: this.turnDetection(),
                           },
                         },
                       },
